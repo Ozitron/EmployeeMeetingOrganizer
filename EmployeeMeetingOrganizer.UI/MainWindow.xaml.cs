@@ -5,7 +5,8 @@ namespace EmployeeMeetingOrganizer.UI
 {
     public partial class MainWindow : Window
     {
-        private MainViewModel _viewModel;
+        private readonly MainViewModel _viewModel;
+
         public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();

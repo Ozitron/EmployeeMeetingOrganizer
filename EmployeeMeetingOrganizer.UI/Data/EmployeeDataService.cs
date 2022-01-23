@@ -1,27 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using EmployeeMeetingOrganizer.DataAccess;
 using EmployeeMeetingOrganizer.Model;
+using EmployeeMeetingOrganizer.UI.Data.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeMeetingOrganizer.UI.Data
 {
     internal class EmployeeDataService : IEmployeeDataService
     {
-        private Func<OrganizerContext> _contextCreator;
+        private readonly Func<OrganizerContext> _contextCreator;
 
         public EmployeeDataService(Func<OrganizerContext> contextCreator)
         {
             _contextCreator = contextCreator;
         }
 
-        public async Task<List<Employee>> GetAllAsync()
+        public async Task<Employee> GetByIdAsync(int employeeId)
         {
-            using (var ctx = _contextCreator())
-            {
-                return await ctx.Employees.AsNoTracking().ToListAsync();
-            }
+            await using var ctx = _contextCreator();
+            return await ctx.Employees.AsNoTracking().SingleAsync(e => e.Id == employeeId);
         }
     }
 }

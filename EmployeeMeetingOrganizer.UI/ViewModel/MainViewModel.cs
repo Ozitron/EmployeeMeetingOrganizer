@@ -1,40 +1,25 @@
-﻿using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using EmployeeMeetingOrganizer.Model;
-using EmployeeMeetingOrganizer.UI.Data;
+﻿using System.Threading.Tasks;
+using EmployeeMeetingOrganizer.UI.ViewModel.Base;
+using EmployeeMeetingOrganizer.UI.ViewModel.Interface;
 
 namespace EmployeeMeetingOrganizer.UI.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        private readonly IEmployeeDataService _employeeDataService;
-        private Employee _selectedEmployee;
-        public ObservableCollection<Employee> Employees { get; set; }
-
-        public MainViewModel(IEmployeeDataService employeeDataService)
+        public MainViewModel(INavigationViewModel navigationViewModel,
+            IEmployeeDetailViewModel employeeDetailViewModel)
         {
-            Employees = new ObservableCollection<Employee>();
-            _employeeDataService = employeeDataService;
+            NavigationViewModel = navigationViewModel;
+            EmployeeDetailViewModel = employeeDetailViewModel;
         }
 
         public async Task LoadAsync()
         {
-            var employees = await _employeeDataService.GetAllAsync();
-            Employees.Clear();
-            foreach (var employee in employees)
-            {
-                Employees.Add(employee);
-            }
+            await NavigationViewModel.LoadAsync();
         }
 
-        public Employee SelectedEmployee
-        {
-            get { return _selectedEmployee; }
-            set
-            {
-                _selectedEmployee = value;
-                OnPropertyChanged();
-            }
-        }
+        public INavigationViewModel NavigationViewModel { get; }
+
+        public IEmployeeDetailViewModel EmployeeDetailViewModel { get; }
     }
 }

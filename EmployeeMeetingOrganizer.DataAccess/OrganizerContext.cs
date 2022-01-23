@@ -8,8 +8,7 @@ namespace EmployeeMeetingOrganizer.DataAccess
         //const string connectionString = "Data Source=.;Initial Database=EmployeeMeetingOrganizerDb;Integrated Security=True";
 
         const string connectionString = "Data Source=.\\SQLExpress;Initial Catalog=EmployeeMeetingOrganizerDb;Integrated Security=True";
-
-
+        
         public OrganizerContext() : base() { }
 
         public OrganizerContext(DbContextOptions<OrganizerContext> options) : base(options) { }
