@@ -21,5 +21,13 @@ namespace EmployeeMeetingOrganizer.UI.Data
             await using var ctx = _contextCreator();
             return await ctx.Employees.AsNoTracking().SingleAsync(e => e.Id == employeeId);
         }
+
+        public async Task SaveAsync(Employee employee)
+        {
+            await using var context = _contextCreator();
+            context.Employees.Attach(employee);
+            context.Entry(employee).State = EntityState.Modified;
+            await context.SaveChangesAsync();
+        }
     }
 }

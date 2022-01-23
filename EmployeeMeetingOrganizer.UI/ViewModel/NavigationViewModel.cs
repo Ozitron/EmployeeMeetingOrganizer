@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
-using EmployeeMeetingOrganizer.Model;
 using EmployeeMeetingOrganizer.UI.Data.Interface;
 using EmployeeMeetingOrganizer.UI.Event;
 using EmployeeMeetingOrganizer.UI.ViewModel.Base;
@@ -19,7 +19,14 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
         {
             _employeeLookupService = employeeLookupService;
             _eventAggregator = eventAggregator;
-            Employees = new ObservableCollection<LookupItem>();
+            Employees = new ObservableCollection<NavigationItemViewModel>();
+            _eventAggregator.GetEvent<AfterEmployeeSavedEvent>().Subscribe(AfterEmployeeSaved);
+        }
+
+        private void AfterEmployeeSaved(AfterEmployeeSavedEventArgs obj)
+        {
+            var lookupItem = Employees.Single(i => i.Id == obj.Id);
+            lookupItem.DisplayMember = obj.DisplayMember;
         }
 
         public async Task LoadAsync()
@@ -28,15 +35,15 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             Employees.Clear();
             foreach (var item in lookup)
             {
-                Employees.Add(item);
+                Employees.Add(new NavigationItemViewModel(item.Id, item.DisplayMember));
             }
         }
 
-        public ObservableCollection<LookupItem> Employees { get; }
+        public ObservableCollection<NavigationItemViewModel> Employees { get; }
 
-        private LookupItem _selectedEmployee;
+        private NavigationItemViewModel _selectedEmployee;
 
-        public LookupItem SelectedEmployee
+        public NavigationItemViewModel SelectedEmployee
         {
             get => _selectedEmployee;
             set
