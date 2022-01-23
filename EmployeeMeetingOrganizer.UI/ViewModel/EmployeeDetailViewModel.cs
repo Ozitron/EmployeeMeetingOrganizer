@@ -1,8 +1,10 @@
 ﻿using System.Threading.Tasks;
 using System.Windows.Input;
+using EmployeeMeetingOrganizer.Model;
 using EmployeeMeetingOrganizer.UI.Data;
 using EmployeeMeetingOrganizer.UI.Data.Repositories;
 using EmployeeMeetingOrganizer.UI.Event;
+using EmployeeMeetingOrganizer.UI.View.Services;
 using EmployeeMeetingOrganizer.UI.ViewModel.Base;
 using EmployeeMeetingOrganizer.UI.ViewModel.Interface;
 using EmployeeMeetingOrganizer.UI.Wrapper;
@@ -15,23 +17,29 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
     {
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IEventAggregator _eventAggregator;
+        private readonly IMessageDialogService _messageDialogService;
         private EmployeeWrapper _employee;
         private bool _hasChanges;
 
-        public EmployeeDetailViewModel(IEmployeeRepository dataService, IEventAggregator eventAggregator)
+        public EmployeeDetailViewModel(IEmployeeRepository dataService, 
+            IEventAggregator eventAggregator,
+            IMessageDialogService messageDialogService)
         {
             _employeeRepository = dataService;
             _eventAggregator = eventAggregator;
+            _messageDialogService = messageDialogService;
 
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
+            DeleteCommand = new DelegateCommand(OnDeleteExecute);
         }
 
-        public async Task LoadAsync(int employeeId)
+        public async Task LoadAsync(int? employeeId)
         {
-            var employee = await _employeeRepository.GetByIdAsync(employeeId);
-
+            var employee = employeeId.HasValue
+                ? await _employeeRepository.GetByIdAsync(employeeId.Value)
+                : CreateNewEmployee();
+            
             Employee = new EmployeeWrapper(employee);
-
             Employee.PropertyChanged += (s, e) =>
             {
                 if (!HasChanges)
@@ -45,6 +53,10 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
                 }
             };
             ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+            if (Employee.Id == 0)
+            {
+                Employee.FirstName = "";
+            }
         }
 
         public EmployeeWrapper Employee
@@ -71,9 +83,10 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             }
         }
 
-
         public ICommand SaveCommand { get; }
 
+        public ICommand DeleteCommand { get; }
+        
         private bool OnSaveCanExecute()
         {
             return Employee != null && !Employee.HasErrors && HasChanges;
@@ -89,6 +102,23 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
                 { Id = Employee.Id, DisplayMember = $"{Employee.FirstName} {Employee.LastName}" });
         }
 
+        private async void OnDeleteExecute()
+        {
+            var result = _messageDialogService.ShowOkCancelDialog($"Do you really want to delete the employee {Employee.FirstName} {Employee.LastName}?",
+                "Question");
+            if (result == MessageDialogResult.OK)
+            {
+                _employeeRepository.Remove(Employee.Model);
+                await _employeeRepository.SaveAsync();
+                _eventAggregator.GetEvent<AfterEmployeeDeletedEvent>().Publish(Employee.Id);
+            }
+        }
 
+        private Employee CreateNewEmployee()
+        {
+            var employee = new Employee();
+            _employeeRepository.Add(employee);
+            return employee;
+        }
     }
 }

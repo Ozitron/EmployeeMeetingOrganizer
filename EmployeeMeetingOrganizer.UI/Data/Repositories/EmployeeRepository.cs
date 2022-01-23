@@ -30,5 +30,14 @@ namespace EmployeeMeetingOrganizer.UI.Data.Repositories
         {
             return _context.ChangeTracker.HasChanges();
         }
+
+        public void Add(Employee employee)
+        {
+            _context.Employees.Add(employee);
+        }
+        public void Remove(Employee model)
+        {
+            _context.Employees.Remove(model);
+        }
     }
 }

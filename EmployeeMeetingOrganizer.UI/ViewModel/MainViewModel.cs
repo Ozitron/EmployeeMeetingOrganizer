@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using EmployeeMeetingOrganizer.UI.Event;
 using EmployeeMeetingOrganizer.UI.View.Services;
 using EmployeeMeetingOrganizer.UI.ViewModel.Base;
 using EmployeeMeetingOrganizer.UI.ViewModel.Interface;
+using Prism.Commands;
 using Prism.Events;
 
 namespace EmployeeMeetingOrganizer.UI.ViewModel
@@ -26,6 +28,11 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
 
             _eventAggregator.GetEvent<OpenEmployeeDetailViewEvent>()
                 .Subscribe(OnOpenEmployeeDetailView);
+            _eventAggregator.GetEvent<AfterEmployeeDeletedEvent>()
+                .Subscribe(AfterEmployeeDeleted);
+
+
+            CreateNewEmployeeCommand = new DelegateCommand(OnCreateNewEmployeeExecute);
 
             NavigationViewModel = navigationViewModel;
         }
@@ -34,6 +41,8 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
         {
             await NavigationViewModel.LoadAsync();
         }
+
+        public ICommand CreateNewEmployeeCommand { get; }
 
         public INavigationViewModel NavigationViewModel { get; }
 
@@ -47,7 +56,7 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             }
         }
 
-        private async void OnOpenEmployeeDetailView(int employeeId)
+        private async void OnOpenEmployeeDetailView(int? employeeId)
         {
             if (EmployeeDetailViewModel != null && EmployeeDetailViewModel.HasChanges)
             {
@@ -59,6 +68,16 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             }
             EmployeeDetailViewModel = _employeeDetailViewModelCreator();
             await EmployeeDetailViewModel.LoadAsync(employeeId);
+        }
+
+        private void OnCreateNewEmployeeExecute()
+        {
+            OnOpenEmployeeDetailView(null);
+        }
+
+        private void AfterEmployeeDeleted(int employeeId)
+        {
+            EmployeeDetailViewModel = null;
         }
     }
 }

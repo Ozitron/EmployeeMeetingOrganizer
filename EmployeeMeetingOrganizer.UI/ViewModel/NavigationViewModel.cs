@@ -21,12 +21,30 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             _eventAggregator = eventAggregator;
             Employees = new ObservableCollection<NavigationItemViewModel>();
             _eventAggregator.GetEvent<AfterEmployeeSavedEvent>().Subscribe(AfterEmployeeSaved);
+            _eventAggregator.GetEvent<AfterEmployeeDeletedEvent>().Subscribe(AfterEmployeeDeleted);
         }
 
         private void AfterEmployeeSaved(AfterEmployeeSavedEventArgs obj)
         {
-            var lookupItem = Employees.Single(i => i.Id == obj.Id);
-            lookupItem.DisplayMember = obj.DisplayMember;
+            var lookupItem = Employees.SingleOrDefault(i => i.Id == obj.Id);
+            if (lookupItem == null)
+            {
+                Employees.Add(new NavigationItemViewModel(obj.Id, obj.DisplayMember,
+                    _eventAggregator));
+            }
+            else
+            {
+                lookupItem.DisplayMember = obj.DisplayMember;
+            }
+        }
+
+        private void AfterEmployeeDeleted(int employeeId)
+        {
+            var employee = Employees.SingleOrDefault(f => f.Id == employeeId);
+            if (employee != null)
+            {
+                Employees.Remove(employee);
+            }
         }
 
         public async Task LoadAsync()
@@ -41,22 +59,5 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
 
         public ObservableCollection<NavigationItemViewModel> Employees { get; }
 
-        private NavigationItemViewModel _selectedEmployee;
-
-        public NavigationItemViewModel SelectedEmployee
-        {
-            get => _selectedEmployee;
-            set
-            {
-                _selectedEmployee = value;
-                OnPropertyChanged();
-
-                if (_selectedEmployee != null)
-                {
-                    _eventAggregator.GetEvent<OpenEmployeeDetailViewEvent>()
-                        .Publish(_selectedEmployee.Id);
-                }
-            }
-        }
     }
 }

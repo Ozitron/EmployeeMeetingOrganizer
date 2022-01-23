@@ -5,15 +5,32 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EmployeeMeetingOrganizer.UI"
         xmlns:view="clr-namespace:EmployeeMeetingOrganizer.UI.View"
+        xmlns:viewModel="clr-namespace:EmployeeMeetingOrganizer.UI.ViewModel"
         mc:Ignorable="d"
-        Title="EmployeeMeetingOrganizer" Height="450" Width="800">
+        Title="EmployeeMeetingOrganizer" Height="450" Width="600">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewModel:EmployeeDetailViewModel}">
+            <view:EmployeeDetailView/>
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <view:NavigationView DataContext="{Binding NavigationViewModel}"/>
-        <view:EmployeeDetailView Grid.Column="1" DataContext="{Binding EmployeeDetailViewModel}"/>
-
+        <Menu Grid.ColumnSpan="2" FontSize="20">
+            <MenuItem Header="Create">
+                <MenuItem Header="New Employee" Command="{Binding CreateNewEmployeeCommand}"/>
+            </MenuItem>
+        </Menu>
+        <view:NavigationView Grid.Row="1"
+                             DataContext="{Binding NavigationViewModel}"/>
+        <ContentControl Grid.Row="1"
+                        Grid.Column="1"
+                        Content="{Binding EmployeeDetailViewModel}"/>
     </Grid>
 </Window>

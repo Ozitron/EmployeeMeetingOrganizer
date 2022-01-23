@@ -40,7 +40,20 @@ namespace EmployeeMeetingOrganizer.UI.Wrapper
                     {
                         yield return "First name cannot be empty.";
                     }
+                    break;
 
+                case nameof(LastName):
+                    if (string.Equals(LastName, string.Empty, StringComparison.OrdinalIgnoreCase))
+                    {
+                        yield return "Lastname cannot be empty.";
+                    }
+                    break;
+
+                case nameof(Email):
+                    if (string.Equals(Email, string.Empty, StringComparison.OrdinalIgnoreCase))
+                    {
+                        yield return "Email cannot be empty.";
+                    }
                     break;
             }
         }

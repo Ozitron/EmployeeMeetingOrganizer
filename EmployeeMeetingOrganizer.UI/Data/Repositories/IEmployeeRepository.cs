@@ -10,5 +10,9 @@ namespace EmployeeMeetingOrganizer.UI.Data.Repositories
         Task SaveAsync();
 
         bool HasChanges();
+
+        void Add(Employee employee);
+
+        void Remove(Employee model);
     }
 }

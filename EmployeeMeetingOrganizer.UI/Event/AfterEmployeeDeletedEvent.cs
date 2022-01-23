@@ -2,7 +2,7 @@
 
 namespace EmployeeMeetingOrganizer.UI.Event
 {
-    internal class OpenEmployeeDetailViewEvent : PubSubEvent<int?>
+    public class AfterEmployeeDeletedEvent : PubSubEvent<int>
     {
     }
 }
