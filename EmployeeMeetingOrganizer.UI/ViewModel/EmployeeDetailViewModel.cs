@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using System.Windows.Input;
-using EmployeeMeetingOrganizer.Model;
 using EmployeeMeetingOrganizer.UI.Data.Interface;
 using EmployeeMeetingOrganizer.UI.Event;
 using EmployeeMeetingOrganizer.UI.ViewModel.Base;
 using EmployeeMeetingOrganizer.UI.ViewModel.Interface;
+using EmployeeMeetingOrganizer.UI.Wrapper;
 using Prism.Commands;
 using Prism.Events;
 
@@ -14,6 +14,7 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
     {
         private readonly IEmployeeDataService _dataService;
         private readonly IEventAggregator _eventAggregator;
+        private EmployeeWrapper _employee;
 
         public EmployeeDetailViewModel(IEmployeeDataService dataService, IEventAggregator eventAggregator)
         {
@@ -25,32 +26,23 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
         }
 
-        private bool OnSaveCanExecute()
-        {
-            return true;
-        }
-
-        private async void OnSaveExecute()
-        {
-            await _dataService.SaveAsync(Employee);
-            _eventAggregator.GetEvent<AfterEmployeeSavedEvent>().Publish(
-                new AfterEmployeeSavedEventArgs
-                    { Id = Employee.Id, DisplayMember = $"{Employee.FirstName} {Employee.LastName}" });
-        }
-
-        private async void OnOpenEmployeeDetailView(int employeeId)
-        {
-            await LoadAsync(employeeId);
-        }
-
         public async Task LoadAsync(int employeeId)
         {
-            Employee = await _dataService.GetByIdAsync(employeeId);
+            var employee = await _dataService.GetByIdAsync(employeeId);
+
+            Employee = new EmployeeWrapper(employee);
+
+            Employee.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(Employee.HasErrors))
+                {
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+                }
+            };
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
         }
 
-        private Employee _employee;
-
-        public Employee Employee
+        public EmployeeWrapper Employee
         {
             get => _employee;
             private set
@@ -61,5 +53,24 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
         }
 
         public ICommand SaveCommand { get; }
+
+        private bool OnSaveCanExecute()
+        {
+            return Employee != null && !Employee.HasErrors;
+        }
+
+        private async void OnSaveExecute()
+        {
+            await _dataService.SaveAsync(Employee.Model);
+            _eventAggregator.GetEvent<AfterEmployeeSavedEvent>().Publish(
+                new AfterEmployeeSavedEventArgs
+                { Id = Employee.Id, DisplayMember = $"{Employee.FirstName} {Employee.LastName}" });
+        }
+
+        private async void OnOpenEmployeeDetailView(int employeeId)
+        {
+            await LoadAsync(employeeId);
+        }
+
     }
 }

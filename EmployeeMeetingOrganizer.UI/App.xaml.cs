@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
+using System.Windows.Threading;
 using Autofac;
 using EmployeeMeetingOrganizer.UI.Startup;
 
@@ -13,6 +15,14 @@ namespace EmployeeMeetingOrganizer.UI
 
             var mainWindow = container.Resolve<MainWindow>();
             mainWindow.Show();
+        }
+
+        private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show("Unexpected error occurred. Please contact the administrator.");
+                            //+ Environment.NewLine + e.Exception.Message, "Unexpected error");
+
+            e.Handled = true;
         }
     }
 }
