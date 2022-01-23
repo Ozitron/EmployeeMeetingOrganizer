@@ -8,6 +8,7 @@ namespace EmployeeMeetingOrganizer.Model
         public Employee()
         {
             PhoneNumbers = new Collection<EmployeePhone>();
+            Meetings = new Collection<Meeting>();
         }
 
         public int Id { get; set; }
@@ -28,5 +29,7 @@ namespace EmployeeMeetingOrganizer.Model
         public Department EmployeeDepartment { get; set; }
 
         public ICollection<EmployeePhone> PhoneNumbers { get; set; }
+
+        public ICollection<Meeting> Meetings { get; set; }
     }
 }

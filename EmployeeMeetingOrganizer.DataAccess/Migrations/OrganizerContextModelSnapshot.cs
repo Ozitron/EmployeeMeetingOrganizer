@@ -22,6 +22,21 @@ namespace EmployeeMeetingOrganizer.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("EmployeeMeeting", b =>
+                {
+                    b.Property<int>("EmployeesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MeetingsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("EmployeesId", "MeetingsId");
+
+                    b.HasIndex("MeetingsId");
+
+                    b.ToTable("EmployeeMeeting");
+                });
+
             modelBuilder.Entity("EmployeeMeetingOrganizer.Model.Department", b =>
                 {
                     b.Property<int>("Id")
@@ -38,6 +53,23 @@ namespace EmployeeMeetingOrganizer.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "HR"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Finance"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "IT"
+                        });
                 });
 
             modelBuilder.Entity("EmployeeMeetingOrganizer.Model.Employee", b =>
@@ -71,6 +103,32 @@ namespace EmployeeMeetingOrganizer.DataAccess.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("Employees");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DepartmentId = 3,
+                            Email = "ozankomurcu@gmail.com",
+                            FirstName = "Ozan",
+                            LastName = "Komurcu"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DepartmentId = 1,
+                            Email = "john@doe.com",
+                            FirstName = "John",
+                            LastName = "Doe"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DepartmentId = 2,
+                            Email = "jolene@doe.com",
+                            FirstName = "Jolene",
+                            LastName = "Doe"
+                        });
                 });
 
             modelBuilder.Entity("EmployeeMeetingOrganizer.Model.EmployeePhone", b =>
@@ -93,6 +151,45 @@ namespace EmployeeMeetingOrganizer.DataAccess.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("PhoneNumbers");
+                });
+
+            modelBuilder.Entity("EmployeeMeetingOrganizer.Model.Meeting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("DateFrom")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateTo")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Meetings");
+                });
+
+            modelBuilder.Entity("EmployeeMeeting", b =>
+                {
+                    b.HasOne("EmployeeMeetingOrganizer.Model.Employee", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EmployeeMeetingOrganizer.Model.Meeting", null)
+                        .WithMany()
+                        .HasForeignKey("MeetingsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EmployeeMeetingOrganizer.Model.Employee", b =>
