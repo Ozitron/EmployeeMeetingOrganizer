@@ -24,4 +24,8 @@
     <ProjectReference Include="..\EmployeeMeetingOrganizer.Model\EmployeeMeetingOrganizer.Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

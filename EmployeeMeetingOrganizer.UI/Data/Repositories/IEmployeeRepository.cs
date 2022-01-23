@@ -14,5 +14,7 @@ namespace EmployeeMeetingOrganizer.UI.Data.Repositories
         void Add(Employee employee);
 
         void Remove(Employee model);
+
+        void RemovePhoneNumber(EmployeePhone model);
     }
 }

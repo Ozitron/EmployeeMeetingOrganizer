@@ -7,7 +7,9 @@
         xmlns:view="clr-namespace:EmployeeMeetingOrganizer.UI.View"
         xmlns:viewModel="clr-namespace:EmployeeMeetingOrganizer.UI.ViewModel"
         mc:Ignorable="d"
-        Title="EmployeeMeetingOrganizer" Height="450" Width="600">
+        Title="EmployeeMeetingOrganizer" Height="700" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        FontSize="20">
     <Window.Resources>
         <DataTemplate DataType="{x:Type viewModel:EmployeeDetailViewModel}">
             <view:EmployeeDetailView/>

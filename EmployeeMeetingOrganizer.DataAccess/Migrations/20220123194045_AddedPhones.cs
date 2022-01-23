@@ -4,7 +4,7 @@
 
 namespace EmployeeMeetingOrganizer.DataAccess.Migrations
 {
-    public partial class DepartmentAdded : Migration
+    public partial class AddedPhones : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -42,14 +42,42 @@ namespace EmployeeMeetingOrganizer.DataAccess.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PhoneNumbers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Number = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PhoneNumbers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PhoneNumbers_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Employees_DepartmentId",
                 table: "Employees",
                 column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PhoneNumbers_EmployeeId",
+                table: "PhoneNumbers",
+                column: "EmployeeId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "PhoneNumbers");
+
             migrationBuilder.DropTable(
                 name: "Employees");
 

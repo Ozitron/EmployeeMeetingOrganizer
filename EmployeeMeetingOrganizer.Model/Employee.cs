@@ -1,9 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace EmployeeMeetingOrganizer.Model
 {
     public class Employee
     {
+        public Employee()
+        {
+            PhoneNumbers = new Collection<EmployeePhone>();
+        }
+
         public int Id { get; set; }
 
         [Required]
@@ -20,5 +26,7 @@ namespace EmployeeMeetingOrganizer.Model
         public int? DepartmentId { get; set; }
 
         public Department EmployeeDepartment { get; set; }
+
+        public ICollection<EmployeePhone> PhoneNumbers { get; set; }
     }
 }

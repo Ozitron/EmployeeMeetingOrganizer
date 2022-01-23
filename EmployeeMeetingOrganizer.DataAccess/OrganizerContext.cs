@@ -21,6 +21,8 @@ namespace EmployeeMeetingOrganizer.DataAccess
 
         public Microsoft.EntityFrameworkCore.DbSet<Department> Departments { get; set; }
 
+        public Microsoft.EntityFrameworkCore.DbSet<EmployeePhone> PhoneNumbers { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(connectionString);

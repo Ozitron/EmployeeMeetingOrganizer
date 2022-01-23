@@ -1,8 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using EmployeeMeetingOrganizer.Model;
-using EmployeeMeetingOrganizer.UI.Data;
 using EmployeeMeetingOrganizer.UI.Data.Lookups;
 using EmployeeMeetingOrganizer.UI.Data.Repositories;
 using EmployeeMeetingOrganizer.UI.Event;
@@ -21,6 +23,7 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
         private readonly IEventAggregator _eventAggregator;
         private readonly IMessageDialogService _messageDialogService;
         private readonly IDepartmentsLookupDataService _departmentsLookupDataService;
+        private PhoneNumberWrapper _selectedPhoneNumber;
         private EmployeeWrapper _employee;
         private bool _hasChanges;
 
@@ -36,11 +39,17 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
 
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
             DeleteCommand = new DelegateCommand(OnDeleteExecute);
+            AddPhoneNumberCommand = new DelegateCommand(OnAddPhoneNumberExecute);
+            RemovePhoneNumberCommand = new DelegateCommand(OnRemovePhoneNumberExecute, OnRemovePhoneNumberCanExecute);
+
 
             Departments = new ObservableCollection<LookupItem>();
+            PhoneNumbers = new ObservableCollection<PhoneNumberWrapper>();
         }
 
         public ObservableCollection<LookupItem> Departments { get; }
+        
+        public ObservableCollection<PhoneNumberWrapper> PhoneNumbers { get; }
 
         public async Task LoadAsync(int? employeeId)
         {
@@ -49,6 +58,8 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
                 : CreateNewEmployee();
 
             InitializeEmployee(employee);
+
+            InitializeEmployeePhoneNumbers(employee.PhoneNumbers);
 
             await LoadDepartmentsLookupAsync();
         }
@@ -75,6 +86,33 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             }
         }
 
+        private void InitializeEmployeePhoneNumbers(ICollection<EmployeePhone> phoneNumbers)
+        {
+            foreach (var wrapper in PhoneNumbers)
+            {
+                wrapper.PropertyChanged -= EmployeePhoneNumberWrapper_PropertyChanged;
+            }
+            PhoneNumbers.Clear();
+            foreach (var employeePhoneNumber in phoneNumbers)
+            {
+                var wrapper = new PhoneNumberWrapper(employeePhoneNumber);
+                PhoneNumbers.Add(wrapper);
+                wrapper.PropertyChanged += EmployeePhoneNumberWrapper_PropertyChanged;
+            }
+        }
+
+        private void EmployeePhoneNumberWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!HasChanges)
+            {
+                HasChanges = _employeeRepository.HasChanges();
+            }
+            if (e.PropertyName == nameof(PhoneNumberWrapper.HasErrors))
+            {
+                ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+            }
+        }
+
         private async Task LoadDepartmentsLookupAsync()
         {
             Departments.Clear();
@@ -97,6 +135,17 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             }
         }
 
+        public PhoneNumberWrapper SelectedPhoneNumber
+        {
+            get => _selectedPhoneNumber;
+            set
+            {
+                _selectedPhoneNumber = value;
+                OnPropertyChanged();
+                ((DelegateCommand)RemovePhoneNumberCommand).RaiseCanExecuteChanged();
+            }
+        }
+
         public bool HasChanges
         {
             get => _hasChanges;
@@ -115,9 +164,16 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
 
         public ICommand DeleteCommand { get; }
 
+        public ICommand AddPhoneNumberCommand { get; }
+
+        public ICommand RemovePhoneNumberCommand { get; }
+
         private bool OnSaveCanExecute()
         {
-            return Employee != null && !Employee.HasErrors && HasChanges;
+            return Employee != null 
+                   && !Employee.HasErrors
+                   && PhoneNumbers.All(pn => !pn.HasErrors)
+                   && HasChanges;
         }
 
         private async void OnSaveExecute()
@@ -147,6 +203,30 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             var employee = new Employee();
             _employeeRepository.Add(employee);
             return employee;
+        }
+
+        private void OnAddPhoneNumberExecute()
+        {
+            var newNumber = new PhoneNumberWrapper(new EmployeePhone());
+            newNumber.PropertyChanged += EmployeePhoneNumberWrapper_PropertyChanged;
+            PhoneNumbers.Add(newNumber);
+            Employee.Model.PhoneNumbers.Add(newNumber.Model);
+            newNumber.Number = "";
+        }
+
+        private void OnRemovePhoneNumberExecute()
+        {
+            SelectedPhoneNumber.PropertyChanged -= EmployeePhoneNumberWrapper_PropertyChanged;
+            _employeeRepository.RemovePhoneNumber(SelectedPhoneNumber.Model);
+            PhoneNumbers.Remove(SelectedPhoneNumber);
+            SelectedPhoneNumber = null;
+            HasChanges = _employeeRepository.HasChanges();
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+        }
+
+        private bool OnRemovePhoneNumberCanExecute()
+        {
+            return SelectedPhoneNumber != null;
         }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeeMeetingOrganizer.DataAccess.Migrations
 {
     [DbContext(typeof(OrganizerContext))]
-    [Migration("20220123185309_DepartmentAdded")]
-    partial class DepartmentAdded
+    [Migration("20220123194045_AddedPhones")]
+    partial class AddedPhones
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -75,6 +75,28 @@ namespace EmployeeMeetingOrganizer.DataAccess.Migrations
                     b.ToTable("Employees");
                 });
 
+            modelBuilder.Entity("EmployeeMeetingOrganizer.Model.EmployeePhone", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("PhoneNumbers");
+                });
+
             modelBuilder.Entity("EmployeeMeetingOrganizer.Model.Employee", b =>
                 {
                     b.HasOne("EmployeeMeetingOrganizer.Model.Department", "EmployeeDepartment")
@@ -82,6 +104,22 @@ namespace EmployeeMeetingOrganizer.DataAccess.Migrations
                         .HasForeignKey("DepartmentId");
 
                     b.Navigation("EmployeeDepartment");
+                });
+
+            modelBuilder.Entity("EmployeeMeetingOrganizer.Model.EmployeePhone", b =>
+                {
+                    b.HasOne("EmployeeMeetingOrganizer.Model.Employee", "Employee")
+                        .WithMany("PhoneNumbers")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("EmployeeMeetingOrganizer.Model.Employee", b =>
+                {
+                    b.Navigation("PhoneNumbers");
                 });
 #pragma warning restore 612, 618
         }

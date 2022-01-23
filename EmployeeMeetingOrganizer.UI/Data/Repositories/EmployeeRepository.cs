@@ -5,7 +5,6 @@ using EmployeeMeetingOrganizer.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeMeetingOrganizer.UI.Data.Repositories
-
 {
     internal class EmployeeRepository : IEmployeeRepository
     {
@@ -18,7 +17,9 @@ namespace EmployeeMeetingOrganizer.UI.Data.Repositories
 
         public async Task<Employee> GetByIdAsync(int employeeId)
         {
-            return await _context.Employees.SingleAsync(e => e.Id == employeeId);
+            return await _context.Employees
+                .Include(e => e.PhoneNumbers)
+                .SingleAsync(e => e.Id == employeeId);
         }
 
         public async Task SaveAsync()
@@ -38,6 +39,10 @@ namespace EmployeeMeetingOrganizer.UI.Data.Repositories
         public void Remove(Employee model)
         {
             _context.Employees.Remove(model);
+        }
+        public void RemovePhoneNumber(EmployeePhone model)
+        {
+            _context.PhoneNumbers.Remove(model);
         }
     }
 }
