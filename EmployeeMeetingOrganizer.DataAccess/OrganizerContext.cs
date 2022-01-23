@@ -1,5 +1,9 @@
-﻿using EmployeeMeetingOrganizer.Model;
+﻿using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Conventions;
+using EmployeeMeetingOrganizer.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 
 namespace EmployeeMeetingOrganizer.DataAccess
 {
@@ -13,12 +17,13 @@ namespace EmployeeMeetingOrganizer.DataAccess
 
         public OrganizerContext(DbContextOptions<OrganizerContext> options) : base(options) { }
 
-        public DbSet<Employee> Employees { get; set; }
+        public Microsoft.EntityFrameworkCore.DbSet<Employee> Employees { get; set; }
+
+        public Microsoft.EntityFrameworkCore.DbSet<Department> Departments { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(connectionString);
         }
     }
-
 }

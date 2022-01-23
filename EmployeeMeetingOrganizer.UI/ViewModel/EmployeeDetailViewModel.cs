@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using EmployeeMeetingOrganizer.Model;
 using EmployeeMeetingOrganizer.UI.Data;
+using EmployeeMeetingOrganizer.UI.Data.Lookups;
 using EmployeeMeetingOrganizer.UI.Data.Repositories;
 using EmployeeMeetingOrganizer.UI.Event;
 using EmployeeMeetingOrganizer.UI.View.Services;
@@ -18,27 +20,41 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IEventAggregator _eventAggregator;
         private readonly IMessageDialogService _messageDialogService;
+        private readonly IDepartmentsLookupDataService _departmentsLookupDataService;
         private EmployeeWrapper _employee;
         private bool _hasChanges;
 
-        public EmployeeDetailViewModel(IEmployeeRepository dataService, 
+        public EmployeeDetailViewModel(IEmployeeRepository dataService,
             IEventAggregator eventAggregator,
-            IMessageDialogService messageDialogService)
+            IMessageDialogService messageDialogService,
+            IDepartmentsLookupDataService departmentsLookupDataService)
         {
             _employeeRepository = dataService;
             _eventAggregator = eventAggregator;
             _messageDialogService = messageDialogService;
+            _departmentsLookupDataService = departmentsLookupDataService;
 
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
             DeleteCommand = new DelegateCommand(OnDeleteExecute);
+
+            Departments = new ObservableCollection<LookupItem>();
         }
+
+        public ObservableCollection<LookupItem> Departments { get; }
 
         public async Task LoadAsync(int? employeeId)
         {
             var employee = employeeId.HasValue
                 ? await _employeeRepository.GetByIdAsync(employeeId.Value)
                 : CreateNewEmployee();
-            
+
+            InitializeEmployee(employee);
+
+            await LoadDepartmentsLookupAsync();
+        }
+
+        private void InitializeEmployee(Employee employee)
+        {
             Employee = new EmployeeWrapper(employee);
             Employee.PropertyChanged += (s, e) =>
             {
@@ -56,6 +72,18 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             if (Employee.Id == 0)
             {
                 Employee.FirstName = "";
+            }
+        }
+
+        private async Task LoadDepartmentsLookupAsync()
+        {
+            Departments.Clear();
+            //Departments.Add(new LookupItem { DisplayMember = "-" });
+
+            var lookup = await _departmentsLookupDataService.GetDepartmentsLookupAsync();
+            foreach (var lookupItem in lookup)
+            {
+                Departments.Add(lookupItem);
             }
         }
 
@@ -86,7 +114,7 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
         public ICommand SaveCommand { get; }
 
         public ICommand DeleteCommand { get; }
-        
+
         private bool OnSaveCanExecute()
         {
             return Employee != null && !Employee.HasErrors && HasChanges;

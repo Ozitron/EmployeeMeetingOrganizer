@@ -16,5 +16,9 @@ namespace EmployeeMeetingOrganizer.Model
         [StringLength(50)]
         [EmailAddress]
         public string Email { get; set; }
+
+        public int? DepartmentId { get; set; }
+
+        public Department EmployeeDepartment { get; set; }
     }
 }
