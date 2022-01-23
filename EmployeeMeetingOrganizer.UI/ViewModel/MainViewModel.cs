@@ -14,11 +14,11 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
     {
         private readonly IEventAggregator _eventAggregator;
         private readonly Func<IEmployeeDetailViewModel> _employeeDetailViewModelCreator;
-        private IEmployeeDetailViewModel _employeeDetailViewModel;
+        private IDetailViewModel _detailViewModel;
         private readonly IMessageDialogService _messageDialogService;
 
         public MainViewModel(INavigationViewModel navigationViewModel,
-            Func<IEmployeeDetailViewModel> employeeDetailViewModelCreator, 
+            Func<IEmployeeDetailViewModel> employeeDetailViewModelCreator,
             IEventAggregator eventAggregator,
             IMessageDialogService messageDialogService)
         {
@@ -26,13 +26,13 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             _employeeDetailViewModelCreator = employeeDetailViewModelCreator;
             _messageDialogService = messageDialogService;
 
-            _eventAggregator.GetEvent<OpenEmployeeDetailViewEvent>()
-                .Subscribe(OnOpenEmployeeDetailView);
-            _eventAggregator.GetEvent<AfterEmployeeDeletedEvent>()
-                .Subscribe(AfterEmployeeDeleted);
+            _eventAggregator.GetEvent<OpenDetailViewEvent>()
+                .Subscribe(OnOpenDetailView);
+            _eventAggregator.GetEvent<AfterDetailDeletedEvent>()
+                .Subscribe(AfterDetailDeleted);
 
 
-            CreateNewEmployeeCommand = new DelegateCommand(OnCreateNewEmployeeExecute);
+            CreateNewDetailCommand = new DelegateCommand<Type>(OnCreateNewDetailExecute);
 
             NavigationViewModel = navigationViewModel;
         }
@@ -42,23 +42,23 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             await NavigationViewModel.LoadAsync();
         }
 
-        public ICommand CreateNewEmployeeCommand { get; }
+        public ICommand CreateNewDetailCommand { get; }
 
         public INavigationViewModel NavigationViewModel { get; }
 
-        public IEmployeeDetailViewModel EmployeeDetailViewModel
+        public IDetailViewModel DetailViewModel
         {
-            get => _employeeDetailViewModel;
+            get => _detailViewModel;
             private set
             {
-                _employeeDetailViewModel = value;
+                _detailViewModel = value;
                 OnPropertyChanged();
             }
         }
 
-        private async void OnOpenEmployeeDetailView(int? employeeId)
+        private async void OnOpenDetailView(OpenDetailViewEventArgs args)
         {
-            if (EmployeeDetailViewModel != null && EmployeeDetailViewModel.HasChanges)
+            if (DetailViewModel != null && DetailViewModel.HasChanges)
             {
                 var result = _messageDialogService.ShowOkCancelDialog("You have made changes. Do you want to navigate away?", "Question");
                 if (result == MessageDialogResult.Cancel)
@@ -66,18 +66,25 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
                     return;
                 }
             }
-            EmployeeDetailViewModel = _employeeDetailViewModelCreator();
-            await EmployeeDetailViewModel.LoadAsync(employeeId);
+
+            switch (args.ViewModelName)
+            {
+                case nameof(EmployeeDetailViewModel):
+                    DetailViewModel = _employeeDetailViewModelCreator();
+                    break;
+            }
+
+            await DetailViewModel.LoadAsync(args.Id);
         }
 
-        private void OnCreateNewEmployeeExecute()
+        private void OnCreateNewDetailExecute(Type viewModelType)
         {
-            OnOpenEmployeeDetailView(null);
+            OnOpenDetailView(new OpenDetailViewEventArgs { ViewModelName = viewModelType.Name });
         }
 
-        private void AfterEmployeeDeleted(int employeeId)
+        private void AfterDetailDeleted(AfterDetailDeletedEventArgs args)
         {
-            EmployeeDetailViewModel = null;
+            DetailViewModel = null;
         }
     }
 }

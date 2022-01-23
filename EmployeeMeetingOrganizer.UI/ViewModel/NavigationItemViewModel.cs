@@ -10,13 +10,15 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
     {
         private string _displayMember;
         private IEventAggregator _eventAggregator;
+        private string _detailViewModelName;
 
-        public NavigationItemViewModel(int id, string displayMember, IEventAggregator eventAggregator)
+        public NavigationItemViewModel(int id, string displayMember, string detailViewModelName, IEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
+            _detailViewModelName = detailViewModelName;
             Id = id;
             DisplayMember = displayMember;
-            OpenEmployeeDetailViewCommand = new DelegateCommand(OnOpenEmployeeDetailView);
+            OpenDetailViewCommand = new DelegateCommand(OnOpenDetailViewExecute);
         }
 
         public int Id { get; }
@@ -31,13 +33,18 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             }
         }
 
-        public ICommand OpenEmployeeDetailViewCommand
+        public ICommand OpenDetailViewCommand
         { get; }
 
-        private void OnOpenEmployeeDetailView()
+        private void OnOpenDetailViewExecute()
         {
-            _eventAggregator.GetEvent<OpenEmployeeDetailViewEvent>()
-                .Publish(Id);
+            _eventAggregator.GetEvent<OpenDetailViewEvent>()
+                .Publish(
+                    new OpenDetailViewEventArgs
+                    {
+                        Id = Id,
+                        ViewModelName = _detailViewModelName
+                    });
         }
     }
 }

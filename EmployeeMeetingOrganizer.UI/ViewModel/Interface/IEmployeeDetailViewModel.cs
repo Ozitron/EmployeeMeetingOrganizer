@@ -1,9 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿namespace EmployeeMeetingOrganizer.UI.ViewModel.Interface;
 
-namespace EmployeeMeetingOrganizer.UI.ViewModel.Interface;
-
-public interface IEmployeeDetailViewModel
+public interface IEmployeeDetailViewModel : IDetailViewModel
 {
-    bool HasChanges { get; }
-    Task LoadAsync(int? employeeId);
 }

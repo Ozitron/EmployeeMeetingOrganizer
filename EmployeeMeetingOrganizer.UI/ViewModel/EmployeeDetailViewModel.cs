@@ -7,9 +7,7 @@ using System.Windows.Input;
 using EmployeeMeetingOrganizer.Model;
 using EmployeeMeetingOrganizer.UI.Data.Lookups;
 using EmployeeMeetingOrganizer.UI.Data.Repositories;
-using EmployeeMeetingOrganizer.UI.Event;
 using EmployeeMeetingOrganizer.UI.View.Services;
-using EmployeeMeetingOrganizer.UI.ViewModel.Base;
 using EmployeeMeetingOrganizer.UI.ViewModel.Interface;
 using EmployeeMeetingOrganizer.UI.Wrapper;
 using Prism.Commands;
@@ -17,28 +15,24 @@ using Prism.Events;
 
 namespace EmployeeMeetingOrganizer.UI.ViewModel
 {
-    internal class EmployeeDetailViewModel : ViewModelBase, IEmployeeDetailViewModel
+    internal class EmployeeDetailViewModel : DetailViewModelBase, IEmployeeDetailViewModel
     {
         private readonly IEmployeeRepository _employeeRepository;
-        private readonly IEventAggregator _eventAggregator;
         private readonly IMessageDialogService _messageDialogService;
         private readonly IDepartmentsLookupDataService _departmentsLookupDataService;
         private PhoneNumberWrapper _selectedPhoneNumber;
         private EmployeeWrapper _employee;
-        private bool _hasChanges;
 
         public EmployeeDetailViewModel(IEmployeeRepository dataService,
             IEventAggregator eventAggregator,
             IMessageDialogService messageDialogService,
             IDepartmentsLookupDataService departmentsLookupDataService)
+        : base(eventAggregator)
         {
             _employeeRepository = dataService;
-            _eventAggregator = eventAggregator;
             _messageDialogService = messageDialogService;
             _departmentsLookupDataService = departmentsLookupDataService;
 
-            SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
-            DeleteCommand = new DelegateCommand(OnDeleteExecute);
             AddPhoneNumberCommand = new DelegateCommand(OnAddPhoneNumberExecute);
             RemovePhoneNumberCommand = new DelegateCommand(OnRemovePhoneNumberExecute, OnRemovePhoneNumberCanExecute);
 
@@ -48,10 +42,10 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
         }
 
         public ObservableCollection<LookupItem> Departments { get; }
-        
+
         public ObservableCollection<PhoneNumberWrapper> PhoneNumbers { get; }
 
-        public async Task LoadAsync(int? employeeId)
+        public override async Task LoadAsync(int? employeeId)
         {
             var employee = employeeId.HasValue
                 ? await _employeeRepository.GetByIdAsync(employeeId.Value)
@@ -146,47 +140,26 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             }
         }
 
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (_hasChanges != value)
-                {
-                    _hasChanges = value;
-                    OnPropertyChanged();
-                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
-                }
-            }
-        }
-
-        public ICommand SaveCommand { get; }
-
-        public ICommand DeleteCommand { get; }
-
         public ICommand AddPhoneNumberCommand { get; }
 
         public ICommand RemovePhoneNumberCommand { get; }
 
-        private bool OnSaveCanExecute()
+        protected override bool OnSaveCanExecute()
         {
-            return Employee != null 
+            return Employee != null
                    && !Employee.HasErrors
                    && PhoneNumbers.All(pn => !pn.HasErrors)
                    && HasChanges;
         }
 
-        private async void OnSaveExecute()
+        protected override async void OnSaveExecute()
         {
             await _employeeRepository.SaveAsync();
             HasChanges = _employeeRepository.HasChanges();
-
-            _eventAggregator.GetEvent<AfterEmployeeSavedEvent>().Publish(
-                new AfterEmployeeSavedEventArgs
-                { Id = Employee.Id, DisplayMember = $"{Employee.FirstName} {Employee.LastName}" });
+            RaiseDetailSavedEvent(Employee.Id, $"{Employee.FirstName} {Employee.LastName}");
         }
 
-        private async void OnDeleteExecute()
+        protected override async void OnDeleteExecute()
         {
             var result = _messageDialogService.ShowOkCancelDialog($"Do you really want to delete the employee {Employee.FirstName} {Employee.LastName}?",
                 "Question");
@@ -194,7 +167,7 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             {
                 _employeeRepository.Remove(Employee.Model);
                 await _employeeRepository.SaveAsync();
-                _eventAggregator.GetEvent<AfterEmployeeDeletedEvent>().Publish(Employee.Id);
+                RaiseDetailDeletedEvent(Employee.Id);
             }
         }
 

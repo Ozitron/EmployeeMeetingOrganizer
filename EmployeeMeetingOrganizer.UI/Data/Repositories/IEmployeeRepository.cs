@@ -1,20 +1,9 @@
-﻿using System.Threading.Tasks;
-using EmployeeMeetingOrganizer.Model;
+﻿using EmployeeMeetingOrganizer.Model;
 
 namespace EmployeeMeetingOrganizer.UI.Data.Repositories
 {
-    public interface IEmployeeRepository
+    public interface IEmployeeRepository : IGenericRepository<Employee>
     {
-        Task<Employee> GetByIdAsync(int employeeId);
-
-        Task SaveAsync();
-
-        bool HasChanges();
-
-        void Add(Employee employee);
-
-        void Remove(Employee model);
-
         void RemovePhoneNumber(EmployeePhone model);
     }
 }
