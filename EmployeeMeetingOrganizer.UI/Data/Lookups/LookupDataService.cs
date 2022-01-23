@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using EmployeeMeetingOrganizer.DataAccess;
 using EmployeeMeetingOrganizer.Model;
-using EmployeeMeetingOrganizer.UI.Data.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeMeetingOrganizer.UI.Data

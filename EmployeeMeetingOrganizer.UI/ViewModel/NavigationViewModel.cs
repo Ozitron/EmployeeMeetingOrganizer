@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using EmployeeMeetingOrganizer.UI.Data.Interface;
+using EmployeeMeetingOrganizer.UI.Data;
 using EmployeeMeetingOrganizer.UI.Event;
 using EmployeeMeetingOrganizer.UI.ViewModel.Base;
 using EmployeeMeetingOrganizer.UI.ViewModel.Interface;
@@ -35,7 +35,7 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             Employees.Clear();
             foreach (var item in lookup)
             {
-                Employees.Add(new NavigationItemViewModel(item.Id, item.DisplayMember));
+                Employees.Add(new NavigationItemViewModel(item.Id, item.DisplayMember, _eventAggregator));
             }
         }
 

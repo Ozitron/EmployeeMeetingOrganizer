@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using EmployeeMeetingOrganizer.Model;
 
-namespace EmployeeMeetingOrganizer.UI.Data.Interface;
+namespace EmployeeMeetingOrganizer.UI.Data;
 
 public interface IEmployeeLookupDataService
 {
