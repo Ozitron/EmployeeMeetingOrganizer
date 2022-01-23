@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeMeetingOrganizer.UI.Data
 {
-    public class LookupDataService : IEmployeeLookupDataService, IDepartmentsLookupDataService
+    public class LookupDataService : IEmployeeLookupDataService, IDepartmentsLookupDataService, IMeetingLookupDataService
     {
         private readonly Func<OrganizerContext> _contextCreator;
 
@@ -42,6 +42,20 @@ namespace EmployeeMeetingOrganizer.UI.Data
                         DisplayMember = d.Name
                     })
                 .ToListAsync();
+        }
+
+        public async Task<List<LookupItem>> GetMeetingLookupAsync()
+        {
+            await using var ctx = _contextCreator();
+            var items = await ctx.Meetings.AsNoTracking()
+                .Select(m =>
+                    new LookupItem
+                    {
+                        Id = m.Id,
+                        DisplayMember = m.Title
+                    })
+                .ToListAsync();
+            return items;
         }
     }
 }

@@ -21,9 +21,15 @@ namespace EmployeeMeetingOrganizer.UI.Startup
             builder.RegisterType<MessageDialogService>().As<IMessageDialogService>();
             builder.RegisterType<MainViewModel>().AsSelf();
             builder.RegisterType<NavigationViewModel>().As<INavigationViewModel>();
-            builder.RegisterType<EmployeeDetailViewModel>().As<IEmployeeDetailViewModel>();
+
+            builder.RegisterType<EmployeeDetailViewModel>()
+                .Keyed<IDetailViewModel>(nameof(EmployeeDetailViewModel));
+            builder.RegisterType<MeetingDetailViewModel>()
+                .Keyed<IDetailViewModel>(nameof(MeetingDetailViewModel));
+
             builder.RegisterType<LookupDataService>().AsImplementedInterfaces();
             builder.RegisterType<EmployeeRepository>().As<IEmployeeRepository>();
+            builder.RegisterType<MeetingRepository>().As<IMeetingRepository>();
 
             return builder.Build();
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Autofac.Features.Indexed;
 using EmployeeMeetingOrganizer.UI.Event;
 using EmployeeMeetingOrganizer.UI.View.Services;
 using EmployeeMeetingOrganizer.UI.ViewModel.Base;
@@ -13,17 +14,17 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly IEventAggregator _eventAggregator;
-        private readonly Func<IEmployeeDetailViewModel> _employeeDetailViewModelCreator;
         private IDetailViewModel _detailViewModel;
         private readonly IMessageDialogService _messageDialogService;
+        private IIndex<string, IDetailViewModel> _detailViewModelCreator;
 
         public MainViewModel(INavigationViewModel navigationViewModel,
-            Func<IEmployeeDetailViewModel> employeeDetailViewModelCreator,
+            IIndex<string, IDetailViewModel> detailViewModelCreator,
             IEventAggregator eventAggregator,
             IMessageDialogService messageDialogService)
         {
             _eventAggregator = eventAggregator;
-            _employeeDetailViewModelCreator = employeeDetailViewModelCreator;
+            _detailViewModelCreator = detailViewModelCreator;
             _messageDialogService = messageDialogService;
 
             _eventAggregator.GetEvent<OpenDetailViewEvent>()
@@ -67,13 +68,7 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
                 }
             }
 
-            switch (args.ViewModelName)
-            {
-                case nameof(EmployeeDetailViewModel):
-                    DetailViewModel = _employeeDetailViewModelCreator();
-                    break;
-            }
-
+            DetailViewModel = _detailViewModelCreator[args.ViewModelName];
             await DetailViewModel.LoadAsync(args.Id);
         }
 
