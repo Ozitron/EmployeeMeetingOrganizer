@@ -22,4 +22,11 @@
     <ProjectReference Include="..\EmployeeMeetingOrganizer.Model\EmployeeMeetingOrganizer.Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="View\MainWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
 </Project>

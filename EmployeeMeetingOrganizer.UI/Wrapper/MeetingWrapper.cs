@@ -9,7 +9,7 @@ namespace EmployeeMeetingOrganizer.UI.Wrapper
         public MeetingWrapper(Meeting model) : base(model)
         {
         }
-
+        
         public int Id => Model.Id;
 
         public string Title

@@ -5,9 +5,7 @@ namespace EmployeeMeetingOrganizer.DataAccess
 {
     public class OrganizerContext : DbContext
     {
-        //const string connectionString = "Data Source=.;Initial Database=EmployeeMeetingOrganizerDb;Integrated Security=True";
-
-        const string connectionString = "Data Source=.\\SQLExpress;Initial Catalog=EmployeeMeetingOrganizerDb;Integrated Security=True";
+        private const string connectionString = "Data Source=.\\SQLExpress;Initial Catalog=EmployeeMeetingOrganizerDb;Integrated Security=True";
 
         public OrganizerContext() { }
 
@@ -24,13 +22,13 @@ namespace EmployeeMeetingOrganizer.DataAccess
             new DbInitializer(modelBuilder).Seed();
         }
 
-        public Microsoft.EntityFrameworkCore.DbSet<Employee> Employees { get; set; }
+        public DbSet<Employee> Employees { get; set; }
 
-        public Microsoft.EntityFrameworkCore.DbSet<Department> Departments { get; set; }
+        public DbSet<Department> Departments { get; set; }
 
-        public Microsoft.EntityFrameworkCore.DbSet<EmployeePhone> PhoneNumbers { get; set; }
+        public DbSet<EmployeePhone> PhoneNumbers { get; set; }
 
-        public Microsoft.EntityFrameworkCore.DbSet<Meeting> Meetings { get; set; }
+        public DbSet<Meeting> Meetings { get; set; }
 
 
         public class DbInitializer
@@ -56,13 +54,14 @@ namespace EmployeeMeetingOrganizer.DataAccess
                     new Department { Id = 3, Name = "IT" }
                 );
 
-                //modelBuilder.Entity<Meeting>().HasData(
-                //new Meeting
-                //{
-                //    Title = "Sprint Planning",
-                //    DateFrom = new DateTime(2022, 5, 26),
-                //    DateTo = new DateTime(2022, 5, 26)
-                //});
+                modelBuilder.Entity<Meeting>().HasData(
+                new Meeting
+                {
+                    Id = 1,
+                    Title = "Sprint Planning",
+                    DateFrom = new DateTime(2022, 5, 26),
+                    DateTo = new DateTime(2022, 5, 26)
+                });
 
             }
         }
