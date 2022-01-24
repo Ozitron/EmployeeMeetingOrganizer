@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeMeetingOrganizer.DataAccess
 {
-    public class OrganizerContext : DbContext
+    public class OrganizerDbContext : DbContext
     {
         private const string connectionString = "Data Source=.\\SQLExpress;Initial Catalog=EmployeeMeetingOrganizerDb;Integrated Security=True";
 
-        public OrganizerContext() { }
+        public OrganizerDbContext() { }
 
-        public OrganizerContext(DbContextOptions options) : base(options) { }
+        public OrganizerDbContext(DbContextOptions options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -30,7 +30,6 @@ namespace EmployeeMeetingOrganizer.DataAccess
 
         public DbSet<Meeting> Meetings { get; set; }
 
-
         public class DbInitializer
         {
             private readonly ModelBuilder modelBuilder;
@@ -43,9 +42,9 @@ namespace EmployeeMeetingOrganizer.DataAccess
             public void Seed()
             {
                 modelBuilder.Entity<Employee>().HasData(
-                    new Employee { Id = 1, FirstName = "Ozan", LastName = "Komurcu", Email = "ozankomurcu@gmail.com", DepartmentId = 3},
-                    new Employee { Id = 2, FirstName = "John", LastName = "Doe", Email = "john@doe.com" , DepartmentId = 1},
-                    new Employee { Id = 3, FirstName = "Jolene", LastName = "Doe", Email = "jolene@doe.com", DepartmentId = 2}
+                    new Employee { Id = 1, FirstName = "Ozan", LastName = "Komurcu", Email = "ozankomurcu@gmail.com", DepartmentId = 3 },
+                    new Employee { Id = 2, FirstName = "John", LastName = "Doe", Email = "john@doe.com", DepartmentId = 1 },
+                    new Employee { Id = 3, FirstName = "Jolene", LastName = "Doe", Email = "jolene@doe.com", DepartmentId = 2 }
                 );
 
                 modelBuilder.Entity<Department>().HasData(

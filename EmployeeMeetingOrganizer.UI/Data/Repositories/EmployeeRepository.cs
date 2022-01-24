@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeMeetingOrganizer.UI.Data.Repositories
 {
-    internal class EmployeeRepository : GenericRepository<Employee, OrganizerContext>, IEmployeeRepository
+    internal class EmployeeRepository : GenericRepository<Employee, OrganizerDbContext>, IEmployeeRepository
     {
-        public EmployeeRepository(OrganizerContext context)
+        public EmployeeRepository(OrganizerDbContext context)
             : base(context)
         {
         }

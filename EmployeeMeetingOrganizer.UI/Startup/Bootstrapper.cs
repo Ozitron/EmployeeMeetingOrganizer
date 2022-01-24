@@ -16,7 +16,7 @@ namespace EmployeeMeetingOrganizer.UI.Startup
             var builder = new ContainerBuilder();
 
             builder.RegisterType<EventAggregator>().As<IEventAggregator>().SingleInstance();
-            builder.RegisterType<OrganizerContext>().AsSelf();
+            builder.RegisterType<OrganizerDbContext>().AsSelf();
             builder.RegisterType<MainWindow>().AsSelf();
             builder.RegisterType<MessageDialogService>().As<IMessageDialogService>();
             builder.RegisterType<MainViewModel>().AsSelf();

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EmployeeMeetingOrganizer.DataAccess.Migrations
 {
-    [DbContext(typeof(OrganizerContext))]
-    partial class OrganizerContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(OrganizerDbContext))]
+    partial class OrganizerDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -175,6 +175,15 @@ namespace EmployeeMeetingOrganizer.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Meetings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DateFrom = new DateTime(2022, 5, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DateTo = new DateTime(2022, 5, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Title = "Sprint Planning"
+                        });
                 });
 
             modelBuilder.Entity("EmployeeMeeting", b =>

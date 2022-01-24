@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeMeetingOrganizer.UI.Data.Repositories
 {
-    public class MeetingRepository : GenericRepository<Meeting, OrganizerContext>,
+    public class MeetingRepository : GenericRepository<Meeting, OrganizerDbContext>,
         IMeetingRepository
     {
-        public MeetingRepository(OrganizerContext context) : base(context)
+        public MeetingRepository(OrganizerDbContext context) : base(context)
         {
         }
 

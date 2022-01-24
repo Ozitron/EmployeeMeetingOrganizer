@@ -11,9 +11,9 @@ namespace EmployeeMeetingOrganizer.UI.Data
 {
     public class LookupDataService : IEmployeeLookupDataService, IDepartmentsLookupDataService, IMeetingLookupDataService
     {
-        private readonly Func<OrganizerContext> _contextCreator;
+        private readonly Func<OrganizerDbContext> _contextCreator;
 
-        public LookupDataService(Func<OrganizerContext> contextCreator)
+        public LookupDataService(Func<OrganizerDbContext> contextCreator)
         {
             _contextCreator = contextCreator;
         }

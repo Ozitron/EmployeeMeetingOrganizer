@@ -105,17 +105,17 @@ namespace EmployeeMeetingOrganizer.DataAccess.Migrations
             migrationBuilder.InsertData(
                 table: "Departments",
                 columns: new[] { "Id", "Name" },
-                values: new object[] { 1, "HR" });
+                values: new object[,]
+                {
+                    { 1, "HR" },
+                    { 2, "Finance" },
+                    { 3, "IT" }
+                });
 
             migrationBuilder.InsertData(
-                table: "Departments",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 2, "Finance" });
-
-            migrationBuilder.InsertData(
-                table: "Departments",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 3, "IT" });
+                table: "Meetings",
+                columns: new[] { "Id", "DateFrom", "DateTo", "Title" },
+                values: new object[] { 1, new DateTime(2022, 5, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2022, 5, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sprint Planning" });
 
             migrationBuilder.InsertData(
                 table: "Employees",
