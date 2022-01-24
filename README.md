@@ -2,7 +2,7 @@
 This project is a WPF application and it is developed using C# net6.0
 
 ## Dependencies and Setup
-* The project requires SQLExpress
+* The project requires SQL server database
 
 1- Clone the project and open it in Visual Studio or VS Code
 
