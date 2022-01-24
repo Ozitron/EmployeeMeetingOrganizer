@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:EmployeeMeetingOrganizer.UI.View"
              xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:model="clr-namespace:EmployeeMeetingOrganizer.Model;assembly=EmployeeMeetingOrganizer.Model"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -22,10 +23,40 @@
         <TextBox Grid.Row="1" Text="{Binding Meeting.Title,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
 
         <Label Grid.Row="2" Content="Start" Margin="10 0"/>
-        <toolkit:DateTimePicker Grid.Row="3" Value="{Binding Meeting.DateFrom,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
+        <toolkit:DateTimePicker Grid.Row="3" Value="{Binding Meeting.DateFrom,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10" TextAlignment="Left"/>
 
         <Label Grid.Row="4" Content="End" Margin="10 0"/>
-        <toolkit:DateTimePicker Grid.Row="5" Value="{Binding Meeting.DateTo,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
+        <toolkit:DateTimePicker Grid.Row="5" Value="{Binding Meeting.DateTo,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10" TextAlignment="Left"/>
+
+        <Grid Grid.Row="6" Margin="10">
+            <Grid.Resources>
+                <DataTemplate DataType="{x:Type model:Employee}">
+                    <TextBlock><Run Text="{Binding FirstName}"/> <Run Text="{Binding LastName}"/></TextBlock>
+                </DataTemplate>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Added Employees"/>
+            <ListView Grid.Row="1" ItemsSource="{Binding AddedEmployees}"
+                SelectedItem="{Binding SelectedAddedEmployee}"/>
+
+            <StackPanel Grid.Row="1" Grid.Column="1">
+                <Button Content="&lt;&lt;" Margin="10" Command="{Binding AddEmployeeCommand}"/>
+                <Button Content="&gt;&gt;" Margin="10 0 10 10" Command="{Binding RemoveEmployeeCommand}"/>
+            </StackPanel>
+
+            <Label Content="Available Employees" Grid.Column="2"/>
+            <ListView Grid.Row="1" ItemsSource="{Binding AvailableEmployees}"
+                SelectedItem="{Binding SelectedAvailableEmployee}" Grid.Column="2"/>
+        </Grid>
 
         <StackPanel Grid.Row="7" Orientation="Horizontal">
             <Button Content="Save" Width="75"  Margin="10" Command="{Binding SaveCommand}"/>

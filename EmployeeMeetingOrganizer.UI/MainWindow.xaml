@@ -7,7 +7,7 @@
         xmlns:view="clr-namespace:EmployeeMeetingOrganizer.UI.View"
         xmlns:viewModel="clr-namespace:EmployeeMeetingOrganizer.UI.ViewModel"
         mc:Ignorable="d"
-        Title="EmployeeMeetingOrganizer" Height="700" Width="1000"
+        Title="Employee Meeting Organizer" Height="700" Width="800"
         WindowStartupLocation="CenterScreen"
         FontSize="20">
     <Window.Resources>

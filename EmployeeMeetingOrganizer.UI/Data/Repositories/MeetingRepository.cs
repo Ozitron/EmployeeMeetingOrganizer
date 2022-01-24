@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using EmployeeMeetingOrganizer.DataAccess;
 using EmployeeMeetingOrganizer.Model;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,11 @@ namespace EmployeeMeetingOrganizer.UI.Data.Repositories
             return await Context.Meetings
                 .Include(m => m.Employees)
                 .SingleAsync(m => m.Id == id);
+        }
+        public async Task<List<Employee>> GetAllEmployeesAsync()
+        {
+            return await Context.Set<Employee>()
+                .ToListAsync();
         }
     }
 }

@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using EmployeeMeetingOrganizer.Model;
 using EmployeeMeetingOrganizer.UI.Data.Repositories;
 using EmployeeMeetingOrganizer.UI.View.Services;
@@ -14,6 +18,9 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
         private readonly IMeetingRepository _meetingRepository;
         private MeetingWrapper _meeting;
         private readonly IMessageDialogService _messageDialogService;
+        private Employee _selectedAvailableEmployee;
+        private Employee _selectedAddedEmployee;
+        private List<Employee> _allEmployees;
 
         public MeetingDetailViewModel(IEventAggregator eventAggregator,
           IMessageDialogService messageDialogService,
@@ -21,6 +28,41 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
         {
             _meetingRepository = meetingRepository;
             _messageDialogService = messageDialogService;
+
+            AddedEmployees = new ObservableCollection<Employee>();
+            AvailableEmployees = new ObservableCollection<Employee>();
+            AddEmployeeCommand = new DelegateCommand(OnAddEmployeeExecute, OnAddEmployeeCanExecute);
+            RemoveEmployeeCommand = new DelegateCommand(OnRemoveEmployeeExecute, OnRemoveEmployeeCanExecute);
+        }
+
+        public ICommand AddEmployeeCommand { get; }
+
+        public ICommand RemoveEmployeeCommand { get; }
+
+        public ObservableCollection<Employee> AddedEmployees { get; }
+
+        public ObservableCollection<Employee> AvailableEmployees { get; }
+
+        public Employee SelectedAvailableEmployee
+        {
+            get => _selectedAvailableEmployee;
+            set
+            {
+                _selectedAvailableEmployee = value;
+                OnPropertyChanged();
+                ((DelegateCommand)AddEmployeeCommand).RaiseCanExecuteChanged();
+            }
+        }
+
+        public Employee SelectedAddedEmployee
+        {
+            get => _selectedAddedEmployee;
+            set
+            {
+                _selectedAddedEmployee = value;
+                OnPropertyChanged();
+                ((DelegateCommand)RemoveEmployeeCommand).RaiseCanExecuteChanged();
+            }
         }
 
         public MeetingWrapper Meeting
@@ -40,6 +82,28 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
               : CreateNewMeeting();
 
             InitializeMeeting(meeting);
+
+            _allEmployees = await _meetingRepository.GetAllEmployeesAsync();
+
+            SetupPersonnelList();
+        }
+
+        private void SetupPersonnelList()
+        {
+            var meetingEmployeeIds = Meeting.Model.Employees.Select(f => f.Id).ToList();
+            var addedEmployees = _allEmployees.Where(f => meetingEmployeeIds.Contains(f.Id)).OrderBy(f => f.FirstName);
+            var availableEmployees = _allEmployees.Except(addedEmployees).OrderBy(f => f.FirstName);
+
+            AddedEmployees.Clear();
+            AvailableEmployees.Clear();
+            foreach (var addedEmployee in addedEmployees)
+            {
+                AddedEmployees.Add(addedEmployee);
+            }
+            foreach (var availableEmployee in availableEmployees)
+            {
+                AvailableEmployees.Add(availableEmployee);
+            }
         }
 
         protected override void OnDeleteExecute()
@@ -97,6 +161,38 @@ namespace EmployeeMeetingOrganizer.UI.ViewModel
             {
                 Meeting.Title = "";
             }
+        }
+
+        private void OnRemoveEmployeeExecute()
+        {
+            var EmployeeToRemove = SelectedAddedEmployee;
+
+            Meeting.Model.Employees.Remove(EmployeeToRemove);
+            AddedEmployees.Remove(EmployeeToRemove);
+            AvailableEmployees.Add(EmployeeToRemove);
+            HasChanges = _meetingRepository.HasChanges();
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+        }
+
+        private bool OnRemoveEmployeeCanExecute()
+        {
+            return SelectedAddedEmployee != null;
+        }
+
+        private bool OnAddEmployeeCanExecute()
+        {
+            return SelectedAvailableEmployee != null;
+        }
+
+        private void OnAddEmployeeExecute()
+        {
+            var employeeToAdd = SelectedAvailableEmployee;
+
+            Meeting.Model.Employees.Add(employeeToAdd);
+            AddedEmployees.Add(employeeToAdd);
+            AvailableEmployees.Remove(employeeToAdd);
+            HasChanges = _meetingRepository.HasChanges();
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
         }
     }
 }
