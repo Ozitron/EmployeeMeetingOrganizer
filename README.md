@@ -1,2 +1,0 @@
-# Employee Meeting Organizer
-WPF 
